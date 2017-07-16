@@ -32,10 +32,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.android.inventory.data.InventoryContract;
@@ -60,14 +58,14 @@ public class EditorActivity extends AppCompatActivity implements
     private EditText mPriceEditText;
 
     /** EditText field to enter the inventory quantity */
-    private Spinner mQuantitySpinner;
+    private EditText mQuantityText;
 
     /**
      * Quantity of the product. The possible valid values are in the InventoryContract.java file:
      * {@link InvEntry#QTY_0}, {@link InvEntry#QTY_1}, or
      * {@link InvEntry#QTY_2}.
      */
-    private int mQty = InventoryContract.InvEntry.QTY_0;
+    //private int mQty = InventoryContract.InvEntry.QTY_0;
 
     /** Boolean flag that keeps track of whether inventory has been edited (true) or not (false) */
     private boolean mInvHasChanged = false;
@@ -115,56 +113,31 @@ public class EditorActivity extends AppCompatActivity implements
         // Find all relevant views that we will need to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_product_name);
         mPriceEditText = (EditText) findViewById(R.id.edit_inv_price);
-        mQuantitySpinner = (Spinner) findViewById(R.id.spinner_qty);
+        mQuantityText = (EditText) findViewById(R.id.edit_qty);
 
         // Setup OnTouchListeners on all the input fields, so we can determine if the user
         // has touched or modified them. This will let us know if there are unsaved changes
         // or not, if the user tries to leave the editor without saving.
         mNameEditText.setOnTouchListener(mTouchListener);
         mPriceEditText.setOnTouchListener(mTouchListener);
-        mQuantitySpinner.setOnTouchListener(mTouchListener);
+        mQuantityText.setOnTouchListener(mTouchListener);
 
-        setupSpinner();
+        //setupSpinner();
     }
 
     /**
      * Setup the dropdown spinner that allows the user to select the quantity of the inventory.
      */
-    private void setupSpinner() {
-        // Create adapter for spinner. The list options are from the String array it will use
-        // the spinner will use the default layout
-        ArrayAdapter quantitySpinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.price_options, android.R.layout.simple_spinner_item);
-
-        // Specify dropdown layout style - simple list view with 1 item per line
-        quantitySpinnerAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-
-        // Apply the adapter to the spinner
-        mQuantitySpinner.setAdapter(quantitySpinnerAdapter);
-
-        // Set the integer mSelected to the constant values
-        mQuantitySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selection = (String) parent.getItemAtPosition(position);
-                if (!TextUtils.isEmpty(selection)) {
-                    if (selection.equals(getString(R.string.quantity_one))) {
-                        mQty = InventoryContract.InvEntry.QTY_1;
-                    } else if (selection.equals(getString(R.string.quantity_two))) {
-                        mQty = InvEntry.QTY_2;
-                    } else {
-                        mQty = InventoryContract.InvEntry.QTY_0;
-                    }
-                }
-            }
-
-            // Because AdapterView is an abstract class, onNothingSelected must be defined
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                mQty = InventoryContract.InvEntry.QTY_0;
-            }
-        });
-    }
+//    private void setupSpinner() {
+//        // Create adapter for spinner. The list options are from the String array it will use
+//        // the spinner will use the default layout
+//        ArrayAdapter quantitySpinnerAdapter = ArrayAdapter.createFromResource(this,
+//                R.array.price_options, android.R.layout.simple_spinner_item);
+//
+//        // Specify dropdown layout style - simple list view with 1 item per line
+//        quantitySpinnerAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+//
+//    }
 
     /**
      * Get user input from editor and save inventory into database.
@@ -173,22 +146,15 @@ public class EditorActivity extends AppCompatActivity implements
         // Read from input fields
         // Use trim to eliminate leading or trailing white space
         String nameString = mNameEditText.getText().toString().trim();
+        String quantityString = mPriceEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
-
-        // Check if this is supposed to be a new inventory
-        // and check if all the fields in the editor are blank
-        if (mCurrentInvUri == null &&
-                TextUtils.isEmpty(priceString) && mQty == InvEntry.QTY_0) {
-            // Since no fields were modified, we can return early without creating a new pet.
-            // No need to create ContentValues and no need to do any ContentProvider operations.
-            return;
-        }
 
         // Create a ContentValues object where column names are the keys,
         // and pet attributes from the editor are the values.
         ContentValues values = new ContentValues();
         values.put(InvEntry.COLUMN_INV_NAME, nameString);
-        values.put(InvEntry.COLUMN_INV_QTY, mQty);
+        values.put(InvEntry.COLUMN_INV_QTY, quantityString);
+        values.put(InvEntry.COLUMN_INV_PRICE, priceString);
 
         // If the price is not provided by the user, don't try to parse the string into an
         // integer value. Use 0 by default.
@@ -198,7 +164,7 @@ public class EditorActivity extends AppCompatActivity implements
         }
         values.put(InvEntry.COLUMN_INV_PRICE, price);
 
-        // Determine if this is a new or existing pet by checking if mCurrentInvUri is null or not
+        // Determine if this is a new or existing inventory by checking if mCurrentInvUri is null or not
         if (mCurrentInvUri == null) {
             // This is a NEW pet, so insert a new pet into the provider,
             // returning the content URI for the new pet.
@@ -215,7 +181,7 @@ public class EditorActivity extends AppCompatActivity implements
                         Toast.LENGTH_SHORT).show();
             }
         } else {
-            // Otherwise this is an EXISTING pet, so update the pet with content URI: mCurrentInvUri
+            // Otherwise this is an EXISTING inventory, so update the pet with content URI: mCurrentInvUri
             // and pass in the new ContentValues. Pass in null for the selection and selection args
             // because mCurrentInvUri will already identify the correct row in the database that
             // we want to modify.
@@ -358,32 +324,19 @@ public class EditorActivity extends AppCompatActivity implements
         if (cursor.moveToFirst()) {
             // Find the columns of pet attributes that we're interested in
             int nameColumnIndex = cursor.getColumnIndex(InvEntry.COLUMN_INV_NAME);
-            int genderColumnIndex = cursor.getColumnIndex(InventoryContract.InvEntry.COLUMN_INV_QTY);
-            int weightColumnIndex = cursor.getColumnIndex(InventoryContract.InvEntry.COLUMN_INV_PRICE);
+            int quantityColumnIndex = cursor.getColumnIndex(InventoryContract.InvEntry.COLUMN_INV_QTY);
+            int priceColumnIndex = cursor.getColumnIndex(InventoryContract.InvEntry.COLUMN_INV_PRICE);
 
             // Extract out the value from the Cursor for the given column index
             String name = cursor.getString(nameColumnIndex);
-            int gender = cursor.getInt(genderColumnIndex);
-            int weight = cursor.getInt(weightColumnIndex);
+            int quantity = cursor.getInt(quantityColumnIndex);
+            int price = cursor.getInt(priceColumnIndex);
 
             // Update the views on the screen with the values from the database
             mNameEditText.setText(name);
-            mPriceEditText.setText(Integer.toString(weight));
+            mPriceEditText.setText(Integer.toString(price));
+            mQuantityText.setText(Integer.toString(quantity));
 
-            // Gender is a dropdown spinner, so map the constant value from the database
-            // into one of the dropdown options (0 is Unknown, 1 is Male, 2 is Female).
-            // Then call setSelection() so that option is displayed on screen as the current selection.
-            switch (gender) {
-                case InventoryContract.InvEntry.QTY_1:
-                    mQuantitySpinner.setSelection(1);
-                    break;
-                case InventoryContract.InvEntry.QTY_2:
-                    mQuantitySpinner.setSelection(2);
-                    break;
-                default:
-                    mQuantitySpinner.setSelection(0);
-                    break;
-            }
         }
     }
 
@@ -392,7 +345,7 @@ public class EditorActivity extends AppCompatActivity implements
         // If the loader is invalidated, clear out all the data from the input fields.
         mNameEditText.setText("");
         mPriceEditText.setText("");
-        mQuantitySpinner.setSelection(0); // Select "Unknown" gender
+        mQuantityText.setSelection(0); // Select "Unknown" gender
     }
 
     /**
