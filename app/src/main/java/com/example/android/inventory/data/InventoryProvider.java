@@ -149,15 +149,21 @@ public class InventoryProvider extends ContentProvider {
         }
 
         // Check that the quantity is valid
-        Integer quantity = values.getAsInteger(InvEntry.COLUMN_INV_QTY);
-        if (quantity == null || !InvEntry.isValidGender(quantity)) {
-            throw new IllegalArgumentException("Product requires valid quantity");
+//        Integer quantity = values.getAsInteger(InvEntry.COLUMN_INV_QTY);
+//        if (quantity == null || !InvEntry.isValidGender(quantity)) {
+//            throw new IllegalArgumentException("Product requires valid quantity");
+//        }
+
+        // Check that quantity is equal or more than 0
+        Integer quantity = values.getAsInteger(InventoryContract.InvEntry.COLUMN_INV_QTY);
+        if (quantity != null && quantity < 0) {
+            throw new IllegalArgumentException("Product requires valid price");
         }
 
-        // If the price is provided, check that it's greater than or equal to 0 kg
+        // If the price is provided, check that it's greater than or equal to 0 USD
         Integer price = values.getAsInteger(InventoryContract.InvEntry.COLUMN_INV_PRICE);
         if (price != null && price < 0) {
-            throw new IllegalArgumentException("Pet requires valid price");
+            throw new IllegalArgumentException("Product requires valid price");
         }
 
         // Get writeable database
@@ -212,11 +218,10 @@ public class InventoryProvider extends ContentProvider {
             }
         }
 
-        // If the {@link InvEntry#COLUMN_INV_QTY} key is present,
-        // check that the gender value is valid.
-        if (values.containsKey(InventoryContract.InvEntry.COLUMN_INV_QTY)) {
-            Integer gender = values.getAsInteger(InvEntry.COLUMN_INV_QTY);
-            if (gender == null || !InventoryContract.InvEntry.isValidGender(gender)) {
+
+        if (values.containsKey(InvEntry.COLUMN_INV_QTY)) {
+            Integer quantity = values.getAsInteger(InvEntry.COLUMN_INV_QTY);
+            if (quantity != null && quantity < 0) {
                 throw new IllegalArgumentException("Product requires valid quantity");
             }
         }
