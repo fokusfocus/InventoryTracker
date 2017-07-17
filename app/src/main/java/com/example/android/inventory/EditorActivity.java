@@ -128,8 +128,20 @@ public class EditorActivity extends AppCompatActivity implements
         final Button button = (Button) findViewById(R.id.sale_button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Log.v("button click", mQuantityText.toString());
+                //Log.v("button click", mQuantityText.toString());
                 Toast.makeText(EditorActivity.this, "Product sold!", Toast.LENGTH_SHORT).show();
+
+                //decrease quantity by 1
+                ContentValues values = new ContentValues();
+
+                //get quantity of the product
+                Integer tempV = values.getAsInteger(InvEntry.COLUMN_INV_QTY);
+
+                //decrease by 1
+                tempV = tempV - 1;
+                values.put(InventoryContract.InvEntry.COLUMN_INV_QTY, tempV);
+                getContentResolver().update(InvEntry.CONTENT_URI, values, null, null);
+
             }
         });
 
