@@ -17,6 +17,7 @@ package com.example.android.inventory;
 
 import android.app.AlertDialog;
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
@@ -33,13 +34,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.Button;
 
 import com.example.android.inventory.data.InventoryContract;
 import com.example.android.inventory.data.InventoryContract.InvEntry;
+
+import static android.R.attr.id;
+import static android.R.attr.order;
 
 /**
  * Allows user to create a new pet or edit an existing one.
@@ -124,23 +127,55 @@ public class EditorActivity extends AppCompatActivity implements
         mPriceEditText.setOnTouchListener(mTouchListener);
         mQuantityText.setOnTouchListener(mTouchListener);
 
-        //decrease inventory by one when button is clicked
-        final Button button = (Button) findViewById(R.id.sale_button);
-        button.setOnClickListener(new View.OnClickListener() {
+        //open an email client when the Button order is clicked
+        final Button orderButton = (Button) findViewById(R.id.order_more);
+        orderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
-                //Log.v("button click", mQuantityText.toString());
-                Toast.makeText(EditorActivity.this, "Product sold!", Toast.LENGTH_SHORT).show();
+                //it will open email when orderButton is clicked to order more
+                Intent intentEmail = new Intent(Intent.ACTION_SEND);
+                intentEmail.setType("text/html");
+                intentEmail.putExtra(Intent.EXTRA_EMAIL, "order@email.com");
+                intentEmail.putExtra(Intent.EXTRA_SUBJECT, "Hi, I want to order more!");
+                startActivity(Intent.createChooser(intentEmail, "Send Email"));
+
+
+                //Log.v("orderButton click", mQuantityText.toString());
+                Toast.makeText(EditorActivity.this, "Ordering more!", Toast.LENGTH_SHORT).show();
+
+                // Form the content URI that represents the specific inventory
+                Uri currentInvUri = ContentUris.withAppendedId(InventoryContract.InvEntry.CONTENT_URI, id);
 
                 //decrease quantity by 1
-                ContentValues values = new ContentValues();
+                String values = currentInvUri.toString();
+                Log.v("orderButton click", values);
 
                 //get quantity of the product
-                Integer tempV = values.getAsInteger(InvEntry.COLUMN_INV_QTY);
+                //int tempV = values.getAsInteger(InvEntry.COLUMN_INV_QTY);
 
                 //decrease by 1
-                tempV = tempV - 1;
-                values.put(InventoryContract.InvEntry.COLUMN_INV_QTY, tempV);
+                //tempV = tempV - 1;
+                //values.put(InventoryContract.InvEntry.COLUMN_INV_QTY, tempV);
+                //getContentResolver().update(InvEntry.CONTENT_URI, values, null, null);
+
+            }
+        });
+
+        final Button addButton = (Button) findViewById(R.id.add_qty);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //getting the content URI - ex content://com.example.android.inventory/inventory/16842960
+                Uri currentInvUri = ContentUris.withAppendedId(InventoryContract.InvEntry.CONTENT_URI, id);
+
+                // Create a ContentValues object where column names are the keys,
+                ContentValues values = new ContentValues();
+                values.put(InventoryContract.InvEntry.COLUMN_INV_QTY, 99);
+
+                // Insert a new row for an item into the provider using the ContentResolver. in the future.
                 getContentResolver().update(InvEntry.CONTENT_URI, values, null, null);
+
 
             }
         });
@@ -396,7 +431,7 @@ public class EditorActivity extends AppCompatActivity implements
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked the "Delete" button, so delete the pet.
-                deletePet();
+                deleteInv();
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -417,7 +452,7 @@ public class EditorActivity extends AppCompatActivity implements
     /**
      * Perform the deletion of the pet in the database.
      */
-    private void deletePet() {
+    private void deleteInv() {
         // Only perform the delete if this is an existing pet.
         if (mCurrentInvUri != null) {
             // Call the ContentResolver to delete the pet at the given content URI.
