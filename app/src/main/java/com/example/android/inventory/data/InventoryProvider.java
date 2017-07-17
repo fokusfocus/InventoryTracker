@@ -148,12 +148,6 @@ public class InventoryProvider extends ContentProvider {
             throw new IllegalArgumentException("Product requires a name");
         }
 
-        // Check that the quantity is valid
-//        Integer quantity = values.getAsInteger(InvEntry.COLUMN_INV_QTY);
-//        if (quantity == null || !InvEntry.isValidGender(quantity)) {
-//            throw new IllegalArgumentException("Product requires valid quantity");
-//        }
-
         // Check that quantity is equal or more than 0
         Integer quantity = values.getAsInteger(InventoryContract.InvEntry.COLUMN_INV_QTY);
         if (quantity != null && quantity < 0) {

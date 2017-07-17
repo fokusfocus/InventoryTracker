@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -35,6 +36,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.Button;
 
 import com.example.android.inventory.data.InventoryContract;
 import com.example.android.inventory.data.InventoryContract.InvEntry;
@@ -122,22 +124,16 @@ public class EditorActivity extends AppCompatActivity implements
         mPriceEditText.setOnTouchListener(mTouchListener);
         mQuantityText.setOnTouchListener(mTouchListener);
 
-        //setupSpinner();
-    }
+        //decrease inventory by one when button is clicked
+        final Button button = (Button) findViewById(R.id.sale_button);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.v("button click", mQuantityText.toString());
+                Toast.makeText(EditorActivity.this, "Product sold!", Toast.LENGTH_SHORT).show();
+            }
+        });
 
-    /**
-     * Setup the dropdown spinner that allows the user to select the quantity of the inventory.
-     */
-//    private void setupSpinner() {
-//        // Create adapter for spinner. The list options are from the String array it will use
-//        // the spinner will use the default layout
-//        ArrayAdapter quantitySpinnerAdapter = ArrayAdapter.createFromResource(this,
-//                R.array.price_options, android.R.layout.simple_spinner_item);
-//
-//        // Specify dropdown layout style - simple list view with 1 item per line
-//        quantitySpinnerAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-//
-//    }
+    }
 
     /**
      * Get user input from editor and save inventory into database.
@@ -146,7 +142,7 @@ public class EditorActivity extends AppCompatActivity implements
         // Read from input fields
         // Use trim to eliminate leading or trailing white space
         String nameString = mNameEditText.getText().toString().trim();
-        String quantityString = mPriceEditText.getText().toString().trim();
+        String quantityString = mQuantityText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
 
         // Create a ContentValues object where column names are the keys,

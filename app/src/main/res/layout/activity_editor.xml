@@ -56,13 +56,13 @@
             android:layout_weight="2"
             android:orientation="vertical">
 
-            <!-- Quantity drop-down spinner -->
-            <Spinner
-                android:id="@+id/spinner_qty"
-                android:layout_height="48dp"
-                android:layout_width="wrap_content"
-                android:paddingRight="16dp"
-                android:spinnerMode="dropdown"/>
+            <EditText
+                android:id="@+id/edit_qty"
+                android:hint="Quantity?"
+                android:inputType="number"
+                style="@style/EditorFieldStyle"
+                />
+
 
             <Button
                 android:id="@+id/sale_button"
@@ -92,7 +92,7 @@
             android:layout_weight="2"
             android:paddingLeft="4dp">
 
-            <!-- Weight field -->
+            <!-- Price field -->
             <EditText
                 android:id="@+id/edit_inv_price"
                 android:hint="@string/hint_price_in_usd"

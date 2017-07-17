@@ -31,7 +31,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.android.inventory.data.InventoryContract;
 import com.example.android.inventory.data.InventoryContract.InvEntry;
@@ -108,7 +110,7 @@ public class CatalogActivity extends AppCompatActivity implements
         // Create a ContentValues object where column names are the keys,
         ContentValues values = new ContentValues();
         values.put(InventoryContract.InvEntry.COLUMN_INV_NAME, "SNES Classic");
-        values.put(InventoryContract.InvEntry.COLUMN_INV_QTY, InvEntry.QTY_1);
+        values.put(InventoryContract.InvEntry.COLUMN_INV_QTY, 1);
         values.put(InvEntry.COLUMN_INV_PRICE, 79);
 
         // Insert a new row for an item into the provider using the ContentResolver.
