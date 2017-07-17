@@ -139,42 +139,58 @@ public class EditorActivity extends AppCompatActivity implements
                 intentEmail.putExtra(Intent.EXTRA_SUBJECT, "Hi, I want to order more!");
                 startActivity(Intent.createChooser(intentEmail, "Send Email"));
 
-
-                //Log.v("orderButton click", mQuantityText.toString());
                 Toast.makeText(EditorActivity.this, "Ordering more!", Toast.LENGTH_SHORT).show();
-
-                // Form the content URI that represents the specific inventory
-                Uri currentInvUri = ContentUris.withAppendedId(InventoryContract.InvEntry.CONTENT_URI, id);
-
-                //decrease quantity by 1
-                String values = currentInvUri.toString();
-                Log.v("orderButton click", values);
-
-                //get quantity of the product
-                //int tempV = values.getAsInteger(InvEntry.COLUMN_INV_QTY);
-
-                //decrease by 1
-                //tempV = tempV - 1;
-                //values.put(InventoryContract.InvEntry.COLUMN_INV_QTY, tempV);
-                //getContentResolver().update(InvEntry.CONTENT_URI, values, null, null);
 
             }
         });
 
+        //button to add inventory by 1
         final Button addButton = (Button) findViewById(R.id.add_qty);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                //getting the content URI - ex content://com.example.android.inventory/inventory/16842960
-                Uri currentInvUri = ContentUris.withAppendedId(InventoryContract.InvEntry.CONTENT_URI, id);
+                //grab current quantity and add by 1
+                String quantityString = mQuantityText.getText().toString().trim();
+                int quantity = Integer.parseInt(quantityString);
+                quantity = quantity + 1;
+
 
                 // Create a ContentValues object where column names are the keys,
                 ContentValues values = new ContentValues();
-                values.put(InventoryContract.InvEntry.COLUMN_INV_QTY, 99);
+                values.put(InventoryContract.InvEntry.COLUMN_INV_QTY, quantity);
+
 
                 // Insert a new row for an item into the provider using the ContentResolver. in the future.
-                getContentResolver().update(InvEntry.CONTENT_URI, values, null, null);
+                getContentResolver().update(mCurrentInvUri, values, null, null);
+
+
+            }
+        });
+
+        //button to decrease inventory by 1
+        final Button decButton = (Button) findViewById(R.id.dec_qty);
+        decButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //grab current quantity and add by 1
+                String quantityString = mQuantityText.getText().toString().trim();
+                int quantity = Integer.parseInt(quantityString);
+
+                //prevent quantity to go to negative numbers
+                if (quantity > 0) {
+                    quantity = quantity - 1;
+                } else quantity = 0;
+
+
+                // Create a ContentValues object where column names are the keys,
+                ContentValues values = new ContentValues();
+                values.put(InventoryContract.InvEntry.COLUMN_INV_QTY, quantity);
+
+                // Insert a new row for an item into the provider using the ContentResolver. in the future.
+                //getContentResolver().update(InvEntry.CONTENT_URI, values, null, null);
+                getContentResolver().update(mCurrentInvUri, values, null, null);
 
 
             }
