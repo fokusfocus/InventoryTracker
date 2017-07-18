@@ -113,6 +113,7 @@ public class CatalogActivity extends AppCompatActivity implements
         values.put(InventoryContract.InvEntry.COLUMN_INV_NAME, "SNES Classic");
         values.put(InventoryContract.InvEntry.COLUMN_INV_QTY, 1);
         values.put(InvEntry.COLUMN_INV_PRICE, 79);
+        values.put(InvEntry.COLUMN_INV_IMAGE, R.drawable.snes_classic );
 
         // Insert a new row for an item into the provider using the ContentResolver.
         // Use the {@link InvEntry#CONTENT_URI} to indicate that we want to insert
@@ -161,7 +162,8 @@ public class CatalogActivity extends AppCompatActivity implements
                 InvEntry._ID,
                 InvEntry.COLUMN_INV_NAME,
                 InvEntry.COLUMN_INV_QTY,
-                InvEntry.COLUMN_INV_PRICE};
+                InvEntry.COLUMN_INV_PRICE,
+                InvEntry.COLUMN_INV_IMAGE};
 
         // This loader will execute the ContentProvider's query method on a background thread
         return new CursorLoader(this,   // Parent activity context

@@ -73,7 +73,7 @@ public class EditorActivity extends AppCompatActivity implements
     private ImageView mImageView;
 
     // Uri to store Image Uri
-    private Uri mUri;
+    private String mUri;
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
@@ -240,9 +240,10 @@ public class EditorActivity extends AppCompatActivity implements
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             mImageView.setImageBitmap(imageBitmap);
 
-            //get value for mUri here... how?
+            //get value for mUri here and convert to string
+            mUri = mImageView.toString();
             ContentValues values = new ContentValues();
-            values.put(InvEntry.COLUMN_INV_IMAGE, mUri); //error.. of course
+            values.put(InvEntry.COLUMN_INV_IMAGE, mUri);
         }
 
     }
@@ -256,7 +257,7 @@ public class EditorActivity extends AppCompatActivity implements
         String nameString = mNameEditText.getText().toString().trim();
         String quantityString = mQuantityText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
-        String imageString; //how do I read an image?
+        String imageString = mImageView.toString() ; //how do I read an image?
 
 
         // Create a ContentValues object where column names are the keys,
@@ -265,7 +266,7 @@ public class EditorActivity extends AppCompatActivity implements
         values.put(InvEntry.COLUMN_INV_NAME, nameString);
         values.put(InvEntry.COLUMN_INV_QTY, quantityString);
         values.put(InvEntry.COLUMN_INV_PRICE, priceString);
-        values.put(InvEntry.COLUMN_INV_IMAGE, imageString); //error.. of course..
+        values.put(InvEntry.COLUMN_INV_IMAGE, imageString);
 
         // If the price is not provided by the user, don't try to parse the string into an
         // integer value. Use 0 by default.
