@@ -56,21 +56,44 @@
             android:layout_weight="2"
             android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/edit_qty"
-                android:hint="Quantity?"
-                android:inputType="number"
-                style="@style/EditorFieldStyle"
-                />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/edit_qty"
+                    android:hint="Quantity"
+                    android:inputType="number"
+                    style="@style/EditorFieldStyle"
+                    />
+
+                <Button
+                    android:id="@+id/dec_qty"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:paddingRight="16dp"
+                    android:text="-"/>
+
+                <Button
+                    android:id="@+id/add_qty"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:paddingRight="16dp"
+                    android:text="+"/>
+
+            </LinearLayout>
 
 
             <Button
-                android:id="@+id/sale_button"
+                android:id="@+id/order_more"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:paddingRight="16dp"
-                android:text="Sale?"/>
+                android:text="Order More"/>
+
         </LinearLayout>
+
     </LinearLayout>
 
     <!-- Price category -->
@@ -100,4 +123,19 @@
                 style="@style/EditorFieldStyle" />
         </RelativeLayout>
     </LinearLayout>
+
+    <Button
+        android:id="@+id/click"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:paddingRight="16dp"
+        android:text="Take a photo"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
+
+    <ImageView
+        android:id="@+id/inv_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"/>
 </LinearLayout>

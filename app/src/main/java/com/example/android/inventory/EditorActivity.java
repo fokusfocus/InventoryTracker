@@ -24,8 +24,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -35,6 +37,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.Button;
 
@@ -59,11 +62,20 @@ public class EditorActivity extends AppCompatActivity implements
     /** EditText field to enter the inventory name */
     private EditText mNameEditText;
 
+
     /** EditText field to enter the inventory price */
     private EditText mPriceEditText;
 
     /** EditText field to enter the inventory quantity */
     private EditText mQuantityText;
+
+    // ImageView to store product images
+    private ImageView mImageView;
+
+    // Uri to store Image Uri
+    private Uri mUri;
+
+    static final int REQUEST_IMAGE_CAPTURE = 1;
 
     /**
      * Quantity of the product. The possible valid values are in the InventoryContract.java file:
@@ -119,6 +131,7 @@ public class EditorActivity extends AppCompatActivity implements
         mNameEditText = (EditText) findViewById(R.id.edit_product_name);
         mPriceEditText = (EditText) findViewById(R.id.edit_inv_price);
         mQuantityText = (EditText) findViewById(R.id.edit_qty);
+        mImageView = (ImageView) findViewById(R.id.inv_image);
 
         // Setup OnTouchListeners on all the input fields, so we can determine if the user
         // has touched or modified them. This will let us know if there are unsaved changes
@@ -126,6 +139,7 @@ public class EditorActivity extends AppCompatActivity implements
         mNameEditText.setOnTouchListener(mTouchListener);
         mPriceEditText.setOnTouchListener(mTouchListener);
         mQuantityText.setOnTouchListener(mTouchListener);
+        mImageView.setOnTouchListener(mTouchListener);
 
         //open an email client when the Button order is clicked
         final Button orderButton = (Button) findViewById(R.id.order_more);
@@ -155,15 +169,12 @@ public class EditorActivity extends AppCompatActivity implements
                 int quantity = Integer.parseInt(quantityString);
                 quantity = quantity + 1;
 
-
                 // Create a ContentValues object where column names are the keys,
                 ContentValues values = new ContentValues();
                 values.put(InventoryContract.InvEntry.COLUMN_INV_QTY, quantity);
 
-
                 // Insert a new row for an item into the provider using the ContentResolver. in the future.
                 getContentResolver().update(mCurrentInvUri, values, null, null);
-
 
             }
         });
@@ -183,7 +194,6 @@ public class EditorActivity extends AppCompatActivity implements
                     quantity = quantity - 1;
                 } else quantity = 0;
 
-
                 // Create a ContentValues object where column names are the keys,
                 ContentValues values = new ContentValues();
                 values.put(InventoryContract.InvEntry.COLUMN_INV_QTY, quantity);
@@ -196,6 +206,45 @@ public class EditorActivity extends AppCompatActivity implements
             }
         });
 
+        //press button to take a photo
+        final Button addImage = (Button) findViewById(R.id.click);
+        addImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                }
+
+            }
+
+//            //grab the thumbnail and store it in mImageView
+//            protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//                if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+//                    Bundle extras = data.getExtras();
+//                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+//                    mImageView.setImageBitmap(imageBitmap);
+//                }
+//            }
+
+
+        });
+
+    }
+
+    //Show the thumbnail image
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            mImageView.setImageBitmap(imageBitmap);
+
+            //get value for mUri here... how?
+            ContentValues values = new ContentValues();
+            values.put(InvEntry.COLUMN_INV_IMAGE, mUri); //error.. of course
+        }
+
     }
 
     /**
@@ -207,6 +256,8 @@ public class EditorActivity extends AppCompatActivity implements
         String nameString = mNameEditText.getText().toString().trim();
         String quantityString = mQuantityText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
+        String imageString; //how do I read an image?
+
 
         // Create a ContentValues object where column names are the keys,
         // and pet attributes from the editor are the values.
@@ -214,6 +265,7 @@ public class EditorActivity extends AppCompatActivity implements
         values.put(InvEntry.COLUMN_INV_NAME, nameString);
         values.put(InvEntry.COLUMN_INV_QTY, quantityString);
         values.put(InvEntry.COLUMN_INV_PRICE, priceString);
+        values.put(InvEntry.COLUMN_INV_IMAGE, imageString); //error.. of course..
 
         // If the price is not provided by the user, don't try to parse the string into an
         // integer value. Use 0 by default.
@@ -360,7 +412,8 @@ public class EditorActivity extends AppCompatActivity implements
                 InventoryContract.InvEntry._ID,
                 InvEntry.COLUMN_INV_NAME,
                 InvEntry.COLUMN_INV_QTY,
-                InventoryContract.InvEntry.COLUMN_INV_PRICE};
+                InventoryContract.InvEntry.COLUMN_INV_PRICE,
+                InvEntry.COLUMN_INV_IMAGE };
 
         // This loader will execute the ContentProvider's query method on a background thread
         return new CursorLoader(this,   // Parent activity context
@@ -385,6 +438,7 @@ public class EditorActivity extends AppCompatActivity implements
             int nameColumnIndex = cursor.getColumnIndex(InvEntry.COLUMN_INV_NAME);
             int quantityColumnIndex = cursor.getColumnIndex(InventoryContract.InvEntry.COLUMN_INV_QTY);
             int priceColumnIndex = cursor.getColumnIndex(InventoryContract.InvEntry.COLUMN_INV_PRICE);
+            //int imageColumnIndex = cursor.getColumnIndex(InvEntry.COLUMN_INV_IMAGE);
 
             // Extract out the value from the Cursor for the given column index
             String name = cursor.getString(nameColumnIndex);
@@ -395,6 +449,7 @@ public class EditorActivity extends AppCompatActivity implements
             mNameEditText.setText(name);
             mPriceEditText.setText(Integer.toString(price));
             mQuantityText.setText(Integer.toString(quantity));
+            // for image?
 
         }
     }

@@ -65,9 +65,6 @@ public class InventoryCursorAdapter extends CursorAdapter {
         quantityTextView.setText(invQty);
         priceTextView.setText(invPrice);
 
-        saleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
                 //do stuff to decrease quantity by 1
                 saleButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -89,18 +86,9 @@ public class InventoryCursorAdapter extends CursorAdapter {
                         values.put(InventoryContract.InvEntry.COLUMN_INV_QTY, quantity);
                         context.getContentResolver().update(currentProductUri, values, null, null);
 
-                        //Get current URI ???
-                        //Uri currentUri = ContentUris.withAppendedId(InvEntry.CONTENT_URI, values);
-
-                        // update a new row for an item into the provider using the ContentResolver. in the future.
-                        //getContentResolver().update(InvEntry.CONTENT_URI, values, null, null);
-                        //context.getContentResolver().update(mCurrentInvUri, values, null, null);
-
-
                     }
                 });
-            }
-        });
+
     }
 
 

@@ -151,13 +151,18 @@ public class InventoryProvider extends ContentProvider {
         // Check that quantity is equal or more than 0
         Integer quantity = values.getAsInteger(InventoryContract.InvEntry.COLUMN_INV_QTY);
         if (quantity != null && quantity < 0) {
-            throw new IllegalArgumentException("Product requires valid price");
+            throw new IllegalArgumentException("Product requires valid quantity");
         }
 
         // If the price is provided, check that it's greater than or equal to 0 USD
         Integer price = values.getAsInteger(InventoryContract.InvEntry.COLUMN_INV_PRICE);
         if (price != null && price < 0) {
             throw new IllegalArgumentException("Product requires valid price");
+        }
+
+        String image = values.getAsString(InvEntry.COLUMN_INV_IMAGE);
+        if (image == null) {
+            throw new IllegalArgumentException("Product requires a name");
         }
 
         // Get writeable database
@@ -227,6 +232,13 @@ public class InventoryProvider extends ContentProvider {
             Integer weight = values.getAsInteger(InventoryContract.InvEntry.COLUMN_INV_PRICE);
             if (weight != null && weight < 0) {
                 throw new IllegalArgumentException("Product requires valid price");
+            }
+        }
+
+        if (values.containsKey(InvEntry.COLUMN_INV_IMAGE)) {
+            String image = values.getAsString(InvEntry.COLUMN_INV_IMAGE);
+            if (image == null) {
+                throw new IllegalArgumentException("Product require image");
             }
         }
 

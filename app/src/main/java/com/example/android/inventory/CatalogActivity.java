@@ -32,11 +32,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.android.inventory.data.InventoryContract;
 import com.example.android.inventory.data.InventoryContract.InvEntry;
+
+import static android.R.attr.id;
 
 /**
  * Displays list of inventory that were entered and stored in the app.
@@ -49,6 +52,7 @@ public class CatalogActivity extends AppCompatActivity implements
 
     /** Adapter for the ListView */
     InventoryCursorAdapter mCursorAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +68,7 @@ public class CatalogActivity extends AppCompatActivity implements
                 startActivity(intent);
             }
         });
+
 
         // Find the ListView which will be populated with the inventory data
         ListView invListView = (ListView) findViewById(R.id.list);
@@ -84,11 +89,7 @@ public class CatalogActivity extends AppCompatActivity implements
                 // Create new intent to go to {@link EditorActivity}
                 Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
 
-                // Form the content URI that represents the specific pet that was clicked on,
-                // by appending the "id" (passed as input to this method) onto the
-                // {@link InvEntry#CONTENT_URI}.
-                // For example, the URI would be "content://com.example.android.inventory/inventory/2"
-                // if the pet with ID 2 was clicked on.
+                //Grabbing the current URI
                 Uri currentInvUri = ContentUris.withAppendedId(InventoryContract.InvEntry.CONTENT_URI, id);
 
                 // Set the URI on the data field of the intent
@@ -117,7 +118,8 @@ public class CatalogActivity extends AppCompatActivity implements
         // Use the {@link InvEntry#CONTENT_URI} to indicate that we want to insert
         // into the inventory database table.
         // Receive the new content URI that will allow us to access Toto's data in the future.
-        Uri newUri = getContentResolver().insert(InvEntry.CONTENT_URI, values);
+        //Uri newUri = getContentResolver().insert(InvEntry.CONTENT_URI, values);
+        getContentResolver().insert(InvEntry.CONTENT_URI, values);
     }
 
     /**
@@ -157,7 +159,9 @@ public class CatalogActivity extends AppCompatActivity implements
         // Define a projection that specifies the columns from the table we care about.
         String[] projection = {
                 InvEntry._ID,
-                InvEntry.COLUMN_INV_NAME};
+                InvEntry.COLUMN_INV_NAME,
+                InvEntry.COLUMN_INV_QTY,
+                InvEntry.COLUMN_INV_PRICE};
 
         // This loader will execute the ContentProvider's query method on a background thread
         return new CursorLoader(this,   // Parent activity context
