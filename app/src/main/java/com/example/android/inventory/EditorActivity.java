@@ -390,21 +390,6 @@ public class EditorActivity extends AppCompatActivity implements
         mBitmap = getBitmapFromUri(mImageUri);
         mImageView.setImageBitmap(mBitmap);
 
-        // If the price is not provided by the user, don't try to parse the string into an
-        // integer value. Use 0 by default.
-//        int price = 0;
-//        if (!TextUtils.isEmpty(priceString)) {
-//            price = Integer.parseInt(priceString);
-//        }
-//        values.put(InvEntry.COLUMN_INV_PRICE, price);
-//
-//        //If name not provided by the user, insert "No product name"
-//        if (nameString.isEmpty()) {
-//            nameString = "No product name entered";
-//            //throw a toast here 'Please enter product name'
-//        }
-//        values.put(InvEntry.COLUMN_INV_NAME, nameString);
-
         if (TextUtils.isEmpty(nameString) || TextUtils.isEmpty(priceString) || TextUtils.isEmpty(quantityString))
         {
             Toast.makeText(this, "Please enter all fields!", Toast.LENGTH_SHORT).show();
@@ -577,22 +562,25 @@ public class EditorActivity extends AppCompatActivity implements
         // Proceed with moving to the first row of the cursor and reading data from it
         // (This should be the only row in the cursor)
         if (cursor.moveToFirst()) {
-            // Find the columns of pet attributes that we're interested in
+            // Find the columns of inventory attributes that we're interested in
             int nameColumnIndex = cursor.getColumnIndex(InvEntry.COLUMN_INV_NAME);
             int quantityColumnIndex = cursor.getColumnIndex(InventoryContract.InvEntry.COLUMN_INV_QTY);
             int priceColumnIndex = cursor.getColumnIndex(InventoryContract.InvEntry.COLUMN_INV_PRICE);
-            //int imageColumnIndex = cursor.getColumnIndex(InvEntry.COLUMN_INV_IMAGE);
+            int imageColumnIndex = cursor.getColumnIndex(InvEntry.COLUMN_INV_IMAGE);
 
             // Extract out the value from the Cursor for the given column index
             String name = cursor.getString(nameColumnIndex);
             int quantity = cursor.getInt(quantityColumnIndex);
             int price = cursor.getInt(priceColumnIndex);
+            String image = cursor.getString(imageColumnIndex);
 
             // Update the views on the screen with the values from the database
             mNameEditText.setText(name);
             mPriceEditText.setText(Integer.toString(price));
             mQuantityText.setText(Integer.toString(quantity));
-            // for image?
+            mBitmap = getBitmapFromUri(mImageUri);
+            mImageView.setImageBitmap(mBitmap);
+            
 
         }
     }
@@ -602,7 +590,7 @@ public class EditorActivity extends AppCompatActivity implements
         // If the loader is invalidated, clear out all the data from the input fields.
         mNameEditText.setText("");
         mPriceEditText.setText("");
-        mQuantityText.setSelection(0); // Select "Unknown" gender
+        mQuantityText.setSelection(0);
     }
 
     /**
@@ -639,7 +627,7 @@ public class EditorActivity extends AppCompatActivity implements
      */
     private void showDeleteConfirmationDialog() {
         // Create an AlertDialog.Builder and set the message, and click listeners
-        // for the postivie and negative buttons on the dialog.
+        // for the positive and negative buttons on the dialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.delete_dialog_msg);
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
