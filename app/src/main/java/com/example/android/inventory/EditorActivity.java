@@ -27,8 +27,10 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -44,6 +46,11 @@ import android.widget.Button;
 import com.example.android.inventory.data.InventoryContract;
 import com.example.android.inventory.data.InventoryContract.InvEntry;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import static android.R.attr.id;
 import static android.R.attr.order;
 
@@ -52,6 +59,8 @@ import static android.R.attr.order;
  */
 public class EditorActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
+
+    private static final String LOG_TAG = EditorActivity.class.getSimpleName();
 
     /** Identifier for the inventory data loader */
     private static final int EXISTING_INV_LOADER = 0;
@@ -74,9 +83,16 @@ public class EditorActivity extends AppCompatActivity implements
 
     // private String mUri;
     // Uri to store Image Uri
-    private String mImageUri;
+    private Uri mImageUri;
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
+
+    private static final String JPEG_FILE_PREFIX = "IMG_";
+    private static final String JPEG_FILE_SUFFIX = ".jpg";
+    private static final String CAMERA_DIR = "/dcim/";
+
+    private static final String FILE_PROVIDER_AUTHORITY = "com.example.android.myfileprovider";
+
 
     /**
      * Quantity of the product. The possible valid values are in the InventoryContract.java file:
@@ -214,8 +230,23 @@ public class EditorActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+
+                try {
+                    File f = createImageFile();
+
+                    Log.d(LOG_TAG, "File: " + f.getAbsolutePath());
+
+                    mImageUri = FileProvider.getUriForFile(
+                            EditorActivity.this, FILE_PROVIDER_AUTHORITY, f);
+
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+
+                    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
 
             }
@@ -228,16 +259,53 @@ public class EditorActivity extends AppCompatActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            mImageView.setImageBitmap(imageBitmap);
+            //Bundle extras = data.getExtras();
+            //Bitmap imageBitmap = (Bitmap) extras.get("data");
+            //mImageView.setImageBitmap(imageBitmap);
 
             //get value for mUri here and convert to string
-            mImageUri = data.getData().toString().trim();
+            //mImageUri = data.getData().toString().trim();
+            mImageUri = data.getData();
             ContentValues values = new ContentValues();
-            values.put(InvEntry.COLUMN_INV_IMAGE, mImageUri);
+            values.put(InvEntry.COLUMN_INV_IMAGE, mImageUri.toString());
         }
 
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = JPEG_FILE_PREFIX + timeStamp + "_";
+        File albumF = getAlbumDir();
+        File imageF = File.createTempFile(imageFileName, JPEG_FILE_SUFFIX, albumF);
+        return imageF;
+    }
+
+    private File getAlbumDir() {
+        File storageDir = null;
+
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+
+            storageDir = new File(Environment.getExternalStorageDirectory()
+                    + CAMERA_DIR
+                    + getString(R.string.app_name));
+
+            Log.d(LOG_TAG, "Dir: " + storageDir);
+
+            if (storageDir != null) {
+                if (!storageDir.mkdirs()) {
+                    if (!storageDir.exists()) {
+                        Log.d(LOG_TAG, "failed to create directory");
+                        return null;
+                    }
+                }
+            }
+
+        } else {
+            Log.v(getString(R.string.app_name), "External storage is not mounted READ/WRITE.");
+        }
+
+        return storageDir;
     }
 
     /**
@@ -262,17 +330,29 @@ public class EditorActivity extends AppCompatActivity implements
 
         // If the price is not provided by the user, don't try to parse the string into an
         // integer value. Use 0 by default.
-        int price = 0;
-        if (!TextUtils.isEmpty(priceString)) {
-            price = Integer.parseInt(priceString);
-        }
-        values.put(InvEntry.COLUMN_INV_PRICE, price);
+//        int price = 0;
+//        if (!TextUtils.isEmpty(priceString)) {
+//            price = Integer.parseInt(priceString);
+//        }
+//        values.put(InvEntry.COLUMN_INV_PRICE, price);
+//
+//        //If name not provided by the user, insert "No product name"
+//        if (nameString.isEmpty()) {
+//            nameString = "No product name entered";
+//            //throw a toast here 'Please enter product name'
+//        }
+//        values.put(InvEntry.COLUMN_INV_NAME, nameString);
 
-        //If name not provided by the user, insert "No product name"
-        if (nameString.isEmpty()) {
-            nameString = "No product name entered";
+        if (TextUtils.isEmpty(nameString) || TextUtils.isEmpty(priceString) || TextUtils.isEmpty(quantityString))
+        {
+            Toast.makeText(this, "Please enter all fields!", Toast.LENGTH_SHORT).show();
+            Intent i = getIntent();
+            finish();
+            startActivity(i);
+
+            return;
+
         }
-        values.put(InvEntry.COLUMN_INV_NAME, nameString);
 
 
         // Determine if this is a new or existing inventory by checking if mCurrentInvUri is null or not
