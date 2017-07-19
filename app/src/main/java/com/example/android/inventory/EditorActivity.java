@@ -268,9 +268,12 @@ public class EditorActivity extends AppCompatActivity implements
         }
         values.put(InvEntry.COLUMN_INV_PRICE, price);
 
-//        if (nameString == null) {
-//            Log.v("Name: ", "Please enter product name!");
-//        }
+        //If name not provided by the user, insert "No product name"
+        if (nameString.isEmpty()) {
+            nameString = "No product name entered";
+        }
+        values.put(InvEntry.COLUMN_INV_NAME, nameString);
+
 
         // Determine if this is a new or existing inventory by checking if mCurrentInvUri is null or not
         if (mCurrentInvUri == null) {
