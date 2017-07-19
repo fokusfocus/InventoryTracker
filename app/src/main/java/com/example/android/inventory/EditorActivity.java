@@ -28,10 +28,12 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
@@ -53,6 +55,7 @@ import com.example.android.inventory.data.InventoryContract;
 import com.example.android.inventory.data.InventoryContract.InvEntry;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -93,6 +96,8 @@ public class EditorActivity extends AppCompatActivity implements
     // private String mUri;
     // Uri to store Image Uri
     private Uri mImageUri;
+
+    private Bitmap mBitmap;
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
@@ -292,10 +297,37 @@ public class EditorActivity extends AppCompatActivity implements
             //get value for mUri here and convert to string
             //mImageUri = data.getData().toString().trim();
             //mImageUri = getData();
-            ContentValues values = new ContentValues();
-            values.put(InvEntry.COLUMN_INV_IMAGE, mImageUri.toString());
+            //ContentValues values = new ContentValues();
+            //values.put(InvEntry.COLUMN_INV_IMAGE, mImageUri.toString());
+
+            mBitmap = getBitmapFromUri(mImageUri);
+            mImageView.setImageBitmap(mBitmap);
         }
 
+    }
+
+    private Bitmap getBitmapFromUri(Uri uri) {
+        ParcelFileDescriptor parcelFileDescriptor = null;
+        try {
+            parcelFileDescriptor =
+                    getContentResolver().openFileDescriptor(uri, "r");
+            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+            Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+            parcelFileDescriptor.close();
+            return image;
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Failed to load image.", e);
+            return null;
+        } finally {
+            try {
+                if (parcelFileDescriptor != null) {
+                    parcelFileDescriptor.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(LOG_TAG, "Error closing ParcelFile Descriptor");
+            }
+        }
     }
 
     private File createImageFile() throws IOException {
@@ -354,6 +386,9 @@ public class EditorActivity extends AppCompatActivity implements
         values.put(InvEntry.COLUMN_INV_PRICE, priceString);
         values.put(InvEntry.COLUMN_INV_IMAGE, imageString);
         values.put(InvEntry.COLUMN_INV_IMAGE, mImageUri.toString());
+
+        mBitmap = getBitmapFromUri(mImageUri);
+        mImageView.setImageBitmap(mBitmap);
 
         // If the price is not provided by the user, don't try to parse the string into an
         // integer value. Use 0 by default.
