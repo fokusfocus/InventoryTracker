@@ -46,6 +46,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -583,6 +584,15 @@ public class EditorActivity extends AppCompatActivity implements
             
 
         }
+
+        ViewTreeObserver viewTreeObserver = mImageView.getViewTreeObserver();
+        viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                mImageView.setImageBitmap(getBitmapFromUri(mImageUri));
+            }
+        });
     }
 
     @Override
