@@ -72,8 +72,9 @@ public class EditorActivity extends AppCompatActivity implements
     // ImageView to store product images
     private ImageView mImageView;
 
+    // private String mUri;
     // Uri to store Image Uri
-    private String mUri;
+    private String mImageUri;
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
@@ -167,6 +168,7 @@ public class EditorActivity extends AppCompatActivity implements
                 //grab current quantity and add by 1
                 String quantityString = mQuantityText.getText().toString().trim();
                 int quantity = Integer.parseInt(quantityString);
+
                 quantity = quantity + 1;
 
                 // Create a ContentValues object where column names are the keys,
@@ -218,16 +220,6 @@ public class EditorActivity extends AppCompatActivity implements
 
             }
 
-//            //grab the thumbnail and store it in mImageView
-//            protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//                if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-//                    Bundle extras = data.getExtras();
-//                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-//                    mImageView.setImageBitmap(imageBitmap);
-//                }
-//            }
-
-
         });
 
     }
@@ -241,9 +233,9 @@ public class EditorActivity extends AppCompatActivity implements
             mImageView.setImageBitmap(imageBitmap);
 
             //get value for mUri here and convert to string
-            mUri = mImageView.toString();
+            mImageUri = data.getData().toString().trim();
             ContentValues values = new ContentValues();
-            values.put(InvEntry.COLUMN_INV_IMAGE, mUri);
+            values.put(InvEntry.COLUMN_INV_IMAGE, mImageUri);
         }
 
     }
@@ -257,7 +249,7 @@ public class EditorActivity extends AppCompatActivity implements
         String nameString = mNameEditText.getText().toString().trim();
         String quantityString = mQuantityText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
-        String imageString = mImageView.toString() ; //how do I read an image?
+        String imageString = mImageView.toString().trim();
 
 
         // Create a ContentValues object where column names are the keys,
@@ -275,6 +267,10 @@ public class EditorActivity extends AppCompatActivity implements
             price = Integer.parseInt(priceString);
         }
         values.put(InvEntry.COLUMN_INV_PRICE, price);
+
+//        if (nameString == null) {
+//            Log.v("Name: ", "Please enter product name!");
+//        }
 
         // Determine if this is a new or existing inventory by checking if mCurrentInvUri is null or not
         if (mCurrentInvUri == null) {
@@ -310,6 +306,7 @@ public class EditorActivity extends AppCompatActivity implements
                         Toast.LENGTH_SHORT).show();
             }
         }
+
     }
 
     @Override
