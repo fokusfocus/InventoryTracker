@@ -243,8 +243,8 @@ public class EditorActivity extends AppCompatActivity implements
         });
 
         //press button to take a photo
-        final Button addImage = (Button) findViewById(R.id.click);
-        addImage.setOnClickListener(new View.OnClickListener() {
+        //final Button addImage = (Button) findViewById(R.id.click);
+        mButtonTakePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
