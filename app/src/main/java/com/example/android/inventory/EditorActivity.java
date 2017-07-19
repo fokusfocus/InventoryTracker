@@ -291,7 +291,7 @@ public class EditorActivity extends AppCompatActivity implements
 
             //get value for mUri here and convert to string
             //mImageUri = data.getData().toString().trim();
-            mImageUri = data.getData();
+            //mImageUri = getData();
             ContentValues values = new ContentValues();
             values.put(InvEntry.COLUMN_INV_IMAGE, mImageUri.toString());
         }
@@ -353,6 +353,7 @@ public class EditorActivity extends AppCompatActivity implements
         values.put(InvEntry.COLUMN_INV_QTY, quantityString);
         values.put(InvEntry.COLUMN_INV_PRICE, priceString);
         values.put(InvEntry.COLUMN_INV_IMAGE, imageString);
+        values.put(InvEntry.COLUMN_INV_IMAGE, mImageUri.toString());
 
         // If the price is not provided by the user, don't try to parse the string into an
         // integer value. Use 0 by default.
